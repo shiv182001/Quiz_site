@@ -4,4 +4,4 @@ The goal of this project was to create a Quiz Website using HTML, CSS, and JavaS
 
 ## Live-Demo-
 
-[Spotify-Clone-Live](https://shiv182001.github.io/Spotify_Clone_it/)
+[Quiz_site-Live](https://shiv182001.github.io/Quiz_site/)
