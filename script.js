@@ -1,107 +1,191 @@
-// Initialize the Variables
-let songIndex = 0;
-let audioElement = new Audio('songs/1.mp3');
-let masterPlay = document.getElementById('masterPlay');
-let myProgressBar = document.getElementById('myProgressBar');
-let gif = document.getElementById('gif');
-let masterSongName = document.getElementById('masterSongName');
-let songItems = Array.from(document.getElementsByClassName('songItem'));
+const quizData = [
+  {
+    question: 'What is the capital of France?',
+    options: ['Paris', 'London', 'Berlin', 'Madrid'],
+    answer: 'Paris',
+  },
+  {
+    question: 'What is the largest planet in our solar system?',
+    options: ['Mars', 'Saturn', 'Jupiter', 'Neptune'],
+    answer: 'Jupiter',
+  },
+  {
+    question: 'Which country won the FIFA World Cup in 2018?',
+    options: ['Brazil', 'Germany', 'France', 'Argentina'],
+    answer: 'France',
+  },
+  {
+    question: 'What is the tallest mountain in the world?',
+    options: ['Mount Everest', 'K2', 'Kangchenjunga', 'Makalu'],
+    answer: 'Mount Everest',
+  },
+  {
+    question: 'Which is the largest ocean on Earth?',
+    options: [
+      'Pacific Ocean',
+      'Indian Ocean',
+      'Atlantic Ocean',
+      'Arctic Ocean',
+    ],
+    answer: 'Pacific Ocean',
+  },
+  {
+    question: 'What is the chemical symbol for gold?',
+    options: ['Au', 'Ag', 'Cu', 'Fe'],
+    answer: 'Au',
+  },
+  {
+    question: 'Who painted the Mona Lisa?',
+    options: [
+      'Pablo Picasso',
+      'Vincent van Gogh',
+      'Leonardo da Vinci',
+      'Michelangelo',
+    ],
+    answer: 'Leonardo da Vinci',
+  },
+  {
+    question: 'Which planet is known as the Red Planet?',
+    options: ['Mars', 'Venus', 'Mercury', 'Uranus'],
+    answer: 'Mars',
+  },
+  {
+    question: 'What is the largest species of shark?',
+    options: [
+      'Great White Shark',
+      'Whale Shark',
+      'Tiger Shark',
+      'Hammerhead Shark',
+    ],
+    answer: 'Whale Shark',
+  },
+  {
+    question: 'Which animal is known as the King of the Jungle?',
+    options: ['Lion', 'Tiger', 'Elephant', 'Giraffe'],
+    answer: 'Lion',
+  },
+];
 
-let songs = [
-    {songName: "On & On-Cartoon, Daniel Levi", filePath: "songs/1.mp3", coverPath: "covers/1.jpg"},
-    {songName: "Invincible-DEAF KEV", filePath: "songs/2.mp3", coverPath: "covers/2.jpg"},
-    {songName: "Mortals-Warriyo, Laura Brehm", filePath: "songs/3.mp3", coverPath: "covers/3.jpg"},
-    {songName: "Shine-Spektrem", filePath: "songs/4.mp3", coverPath: "covers/4.jpg"},
-    {songName: "Why We Lose-Cartoon, Coleman Trapp", filePath: "songs/5.mp3", coverPath: "covers/5.jpg"},
-    {songName: "Sky High-Elektronomia", filePath: "songs/6.mp3", coverPath: "covers/6.jpg"},
-    {songName: "Symbolism-Electro-Light", filePath: "songs/7.mp3", coverPath: "covers/7.jpg"},
-    {songName: "Heroes Tonight-Janji, Johnning", filePath: "songs/8.mp3", coverPath: "covers/8.jpg"},
-    {songName: "My Heart-Different Heaven, EH!DE", filePath: "songs/9.mp3", coverPath: "covers/9.jpg"},
-    {songName: "Feel Good-Syn Cole", filePath: "songs/10.mp3", coverPath: "covers/10.jpg"},
-]
+const quizContainer = document.getElementById('quiz');
+const resultContainer = document.getElementById('result');
+const submitButton = document.getElementById('submit');
+const retryButton = document.getElementById('retry');
+const showAnswerButton = document.getElementById('showAnswer');
 
-songItems.forEach((element, i)=>{ 
-    element.getElementsByTagName("img")[0].src = songs[i].coverPath; 
-    element.getElementsByClassName("songName")[0].innerText = songs[i].songName; 
-})
- 
+let currentQuestion = 0;
+let score = 0;
+let incorrectAnswers = [];
 
-// Handle play/pause click
-masterPlay.addEventListener('click', ()=>{
-    if(audioElement.paused || audioElement.currentTime<=0){
-        audioElement.play();
-        masterPlay.classList.remove('fa-play-circle');
-        masterPlay.classList.add('fa-pause-circle');
-        gif.style.opacity = 1;
-    }
-    else{
-        audioElement.pause();
-        masterPlay.classList.remove('fa-pause-circle');
-        masterPlay.classList.add('fa-play-circle');
-        gif.style.opacity = 0;
-    }
-})
-// Listen to Events
-audioElement.addEventListener('timeupdate', ()=>{ 
-    // Update Seekbar
-    progress = parseInt((audioElement.currentTime/audioElement.duration)* 100); 
-    myProgressBar.value = progress;
-})
-
-myProgressBar.addEventListener('change', ()=>{
-    audioElement.currentTime = myProgressBar.value * audioElement.duration/100;
-})
-
-const makeAllPlays = ()=>{
-    Array.from(document.getElementsByClassName('songItemPlay')).forEach((element)=>{
-        element.classList.remove('fa-pause-circle');
-        element.classList.add('fa-play-circle');
-    })
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
 }
 
-Array.from(document.getElementsByClassName('songItemPlay')).forEach((element)=>{
-    element.addEventListener('click', (e)=>{ 
-        makeAllPlays();
-        songIndex = parseInt(e.target.id);
-        e.target.classList.remove('fa-play-circle');
-        e.target.classList.add('fa-pause-circle');
-        audioElement.src = `songs/${songIndex+1}.mp3`;
-        masterSongName.innerText = songs[songIndex].songName;
-        audioElement.currentTime = 0;
-        audioElement.play();
-        gif.style.opacity = 1;
-        masterPlay.classList.remove('fa-play-circle');
-        masterPlay.classList.add('fa-pause-circle');
-    })
-})
+function displayQuestion() {
+  const questionData = quizData[currentQuestion];
 
-document.getElementById('next').addEventListener('click', ()=>{
-    if(songIndex>=9){
-        songIndex = 0
-    }
-    else{
-        songIndex += 1;
-    }
-    audioElement.src = `songs/${songIndex+1}.mp3`;
-    masterSongName.innerText = songs[songIndex].songName;
-    audioElement.currentTime = 0;
-    audioElement.play();
-    masterPlay.classList.remove('fa-play-circle');
-    masterPlay.classList.add('fa-pause-circle');
+  const questionElement = document.createElement('div');
+  questionElement.className = 'question';
+  questionElement.innerHTML = questionData.question;
 
-})
+  const optionsElement = document.createElement('div');
+  optionsElement.className = 'options';
 
-document.getElementById('previous').addEventListener('click', ()=>{
-    if(songIndex<=0){
-        songIndex = 0
+  const shuffledOptions = [...questionData.options];
+  shuffleArray(shuffledOptions);
+
+  for (let i = 0; i < shuffledOptions.length; i++) {
+    const option = document.createElement('label');
+    option.className = 'option';
+
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'quiz';
+    radio.value = shuffledOptions[i];
+
+    const optionText = document.createTextNode(shuffledOptions[i]);
+
+    option.appendChild(radio);
+    option.appendChild(optionText);
+    optionsElement.appendChild(option);
+  }
+
+  quizContainer.innerHTML = '';
+  quizContainer.appendChild(questionElement);
+  quizContainer.appendChild(optionsElement);
+}
+
+function checkAnswer() {
+  const selectedOption = document.querySelector('input[name="quiz"]:checked');
+  if (selectedOption) {
+    const answer = selectedOption.value;
+    if (answer === quizData[currentQuestion].answer) {
+      score++;
+    } else {
+      incorrectAnswers.push({
+        question: quizData[currentQuestion].question,
+        incorrectAnswer: answer,
+        correctAnswer: quizData[currentQuestion].answer,
+      });
     }
-    else{
-        songIndex -= 1;
+    currentQuestion++;
+    selectedOption.checked = false;
+    if (currentQuestion < quizData.length) {
+      displayQuestion();
+    } else {
+      displayResult();
     }
-    audioElement.src = `songs/${songIndex+1}.mp3`;
-    masterSongName.innerText = songs[songIndex].songName;
-    audioElement.currentTime = 0;
-    audioElement.play();
-    masterPlay.classList.remove('fa-play-circle');
-    masterPlay.classList.add('fa-pause-circle');
-})
+  }
+}
+
+function displayResult() {
+  quizContainer.style.display = 'none';
+  submitButton.style.display = 'none';
+  retryButton.style.display = 'inline-block';
+  showAnswerButton.style.display = 'inline-block';
+  resultContainer.innerHTML = `You scored ${score} out of ${quizData.length}!`;
+}
+
+function retryQuiz() {
+  currentQuestion = 0;
+  score = 0;
+  incorrectAnswers = [];
+  quizContainer.style.display = 'block';
+  submitButton.style.display = 'inline-block';
+  retryButton.style.display = 'none';
+  showAnswerButton.style.display = 'none';
+  resultContainer.innerHTML = '';
+  displayQuestion();
+}
+
+function showAnswer() {
+  quizContainer.style.display = 'none';
+  submitButton.style.display = 'none';
+  retryButton.style.display = 'inline-block';
+  showAnswerButton.style.display = 'none';
+
+  let incorrectAnswersHtml = '';
+  for (let i = 0; i < incorrectAnswers.length; i++) {
+    incorrectAnswersHtml += `
+      <p>
+        <strong>Question:</strong> ${incorrectAnswers[i].question}<br>
+        <strong>Your Answer:</strong> ${incorrectAnswers[i].incorrectAnswer}<br>
+        <strong>Correct Answer:</strong> ${incorrectAnswers[i].correctAnswer}
+      </p>
+    `;
+  }
+
+  resultContainer.innerHTML = `
+    <p>You scored ${score} out of ${quizData.length}!</p>
+    <p>Incorrect Answers:</p>
+    ${incorrectAnswersHtml}
+  `;
+}
+
+submitButton.addEventListener('click', checkAnswer);
+retryButton.addEventListener('click', retryQuiz);
+showAnswerButton.addEventListener('click', showAnswer);
+
+displayQuestion();
